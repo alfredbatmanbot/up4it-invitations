@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "P6278JTY5A.com.clintbatman.up4it",
+        "paths": [
+          "/up4it-invitations",
+          "/up4it-invitations/",
+          "/up4it-invitations/*"
+        ]
+      }
+    ]
+  }
+}

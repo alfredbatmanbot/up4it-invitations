@@ -15,8 +15,9 @@
     .eyebrow{margin:0 0 10px;color:var(--blue);font-weight:750}h1{margin:0;font-size:clamp(2.15rem,8vw,3.6rem);line-height:.98;letter-spacing:-.055em}.muted{color:var(--muted)}.organizer{margin:14px 0 26px}
     .details{display:grid;gap:13px;padding:20px 0;border-block:1px solid var(--line)}.details div{display:grid;grid-template-columns:28px 1fr;line-height:1.45}.icon{color:var(--blue);font-weight:850}.description{margin:22px 0 0;color:#3e4b60;line-height:1.6}
     label,legend{font-size:.9rem;font-weight:750}input{width:100%;margin-top:10px;padding:15px 16px;border:1px solid var(--line);border-radius:15px;outline:0;background:#fbfcfe}input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(19,117,232,.12)}
-    fieldset{margin:24px 0 0;padding:0;border:0}legend{margin-bottom:11px}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.choices button{display:flex;min-height:74px;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);cursor:pointer;font-weight:700}.choices button:hover,.choices button.selected{border-color:var(--blue);background:var(--soft)}.choices b{display:grid;width:27px;height:27px;place-items:center;border-radius:50%;background:var(--soft);color:#0d5fc1}
+    fieldset{margin:24px 0 0;padding:0;border:0}legend{margin-bottom:11px}.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.choices button{display:flex;min-height:74px;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:1px solid var(--line);border-radius:16px;background:#fff;color:var(--ink);cursor:pointer;font-weight:700}.choices button:hover,.choices button.selected{border-color:var(--blue);background:var(--soft)}.choices b{display:grid;width:27px;height:27px;place-items:center;border-radius:50%;background:var(--soft);color:#0d5fc1}
     .feedback{margin:18px 0 0;padding:13px 15px;border-radius:13px;background:#f2f5f9;color:var(--muted);line-height:1.45}.feedback.success{background:#eaf8f1;color:var(--success)}.feedback.error{background:#fff0ee;color:var(--danger)}
+    .beta-cta{margin-top:18px;padding:24px;text-align:center}.beta-cta h2{margin:0;font-size:1.35rem;letter-spacing:-.025em}.beta-cta p{margin:9px auto 18px;max-width:31rem;line-height:1.5}.beta-link{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:12px 19px;border-radius:14px;background:var(--blue);color:#fff;text-decoration:none;font-weight:750}.beta-link:hover{background:#0d65ca}
     footer{display:flex;justify-content:center;gap:8px;padding:25px 8px 0;color:var(--muted);font-size:.82rem}.centered{display:grid;place-content:center;gap:14px;text-align:center}.centered .brand{justify-self:center}
     [hidden]{display:none!important}
     @media(max-width:480px){.shell{width:min(calc(100% - 18px),620px);padding-top:14px}header span{display:none}.invite{padding:24px 21px}.response{padding:22px 18px}.choices{grid-template-columns:1fr}.choices button{min-height:54px;flex-direction:row}footer{flex-direction:column;align-items:center}}
@@ -53,6 +54,11 @@
       </fieldset>
       <p id="feedback" class="feedback" hidden></p>
     </section>
+    <section class="card beta-cta" id="beta-cta" hidden>
+      <h2>Want invitations in Up4It?</h2>
+      <p class="muted">Join our small TestFlight beta to create activities and keep your invitations together.</p>
+      <a class="beta-link" href="https://testflight.apple.com/join/XKDH6CeF">Get the Up4It Test App</a>
+    </section>
     <footer><strong>Up4It</strong><span>Plans without the group-text spiral.</span></footer>
   </main>
 
@@ -70,6 +76,7 @@
     const invitation = document.querySelector("#invitation");
     const errorPage = document.querySelector("#error");
     const feedback = document.querySelector("#feedback");
+    const betaCTA = document.querySelector("#beta-cta");
     const buttons = [...document.querySelectorAll("[data-response]")];
 
     async function callRPC(name, body) {
@@ -158,6 +165,7 @@
           ? `You’re in, ${name}!`
           : `Thanks for letting the organizer know, ${name}.`;
         showFeedback(`${text} You can change your response above.`, "success");
+        betaCTA.hidden = false;
       } catch (error) {
         showFeedback(error.message || "Your response wasn’t saved. Please try again.", "error");
       } finally {
