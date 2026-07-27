@@ -47,9 +47,8 @@
       <fieldset>
         <legend>Your response</legend>
         <div class="choices">
-          <button data-response="accepted"><b>✓</b>I’m in</button>
-          <button data-response="maybe"><b>?</b>Maybe</button>
-          <button data-response="declined"><b>×</b>Can’t make it</button>
+          <button data-response="accepted"><b>✓</b>I’m In</button>
+          <button data-response="declined"><b>×</b>I’m Out</button>
         </div>
       </fieldset>
       <p id="feedback" class="feedback" hidden></p>
@@ -117,6 +116,10 @@
           document.querySelector("#description").textContent = event.description;
           document.querySelector("#description").hidden = false;
         }
+        await callRPC("record_shared_invitation_open", {
+          invitation_token: token,
+          guest_viewer_key: responderKey()
+        });
         loading.hidden = true;
         invitation.hidden = false;
       } catch (error) {
@@ -153,9 +156,7 @@
         buttons.forEach(item => item.classList.toggle("selected", item === button));
         const text = button.dataset.response === "accepted"
           ? `You’re in, ${name}!`
-          : button.dataset.response === "maybe"
-            ? `You’re marked as maybe, ${name}.`
-            : `Thanks for letting the organizer know, ${name}.`;
+          : `Thanks for letting the organizer know, ${name}.`;
         showFeedback(`${text} You can change your response above.`, "success");
       } catch (error) {
         showFeedback(error.message || "Your response wasn’t saved. Please try again.", "error");
