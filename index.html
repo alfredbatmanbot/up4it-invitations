@@ -45,6 +45,13 @@
     <section class="card response">
       <label for="guest-name">Who’s responding?</label>
       <input id="guest-name" autocomplete="name" placeholder="First and last name">
+      <fieldset id="party-options" hidden>
+        <legend>Who’s coming with you?</legend>
+        <div class="choices party-choices">
+          <button type="button" data-party-size="1" class="selected"><b>1</b>Just me</button>
+          <button type="button" data-party-size="2"><b>2</b>Me + 1</button>
+        </div>
+      </fieldset>
       <fieldset>
         <legend>Your response</legend>
         <div class="choices">
@@ -77,7 +84,9 @@
     const errorPage = document.querySelector("#error");
     const feedback = document.querySelector("#feedback");
     const betaCTA = document.querySelector("#beta-cta");
-    const buttons = [...document.querySelectorAll("[data-response]")];
+    const responseButtons = [...document.querySelectorAll("[data-response]")];
+    const partyButtons = [...document.querySelectorAll("[data-party-size]")];
+    let partySize = 1;
 
     async function callRPC(name, body) {
       const response = await fetch(`${supabaseURL}/rest/v1/rpc/${name}`, {
@@ -116,9 +125,12 @@
         }).format(new Date(event.start_time));
         document.querySelector("#location").textContent = event.location || "Location to be decided";
         if (event.max_attendees) {
-          document.querySelector("#capacity").textContent = `Limited to ${event.max_attendees} people`;
+          const remaining = Math.max(0, event.max_attendees - event.spots_filled);
+          document.querySelector("#capacity").textContent =
+            `${event.spots_filled} of ${event.max_attendees} spots filled · ${remaining} remaining`;
           document.querySelector("#capacity-row").hidden = false;
         }
+        document.querySelector("#party-options").hidden = !event.allow_invitee_guest;
         if (event.description) {
           document.querySelector("#description").textContent = event.description;
           document.querySelector("#description").hidden = false;
@@ -144,32 +156,40 @@
       return value;
     }
 
-    buttons.forEach(button => button.addEventListener("click", async () => {
+    partyButtons.forEach(button => button.addEventListener("click", () => {
+      partySize = Number(button.dataset.partySize);
+      partyButtons.forEach(item => item.classList.toggle("selected", item === button));
+    }));
+
+    responseButtons.forEach(button => button.addEventListener("click", async () => {
       const name = document.querySelector("#guest-name").value.trim();
       if (!name) {
         showFeedback("Please enter your name first.", "error");
         document.querySelector("#guest-name").focus();
         return;
       }
-      buttons.forEach(item => item.disabled = true);
+      responseButtons.forEach(item => item.disabled = true);
       showFeedback("Saving your response…", "");
       try {
         await callRPC("respond_to_shared_invitation", {
           invitation_token: token,
           guest_responder_key: responderKey(),
           guest_display_name: name,
-          guest_response: button.dataset.response
+          guest_response: button.dataset.response,
+          guest_party_size: button.dataset.response === "accepted" ? partySize : 1
         });
-        buttons.forEach(item => item.classList.toggle("selected", item === button));
+        responseButtons.forEach(item => item.classList.toggle("selected", item === button));
         const text = button.dataset.response === "accepted"
-          ? `You’re in, ${name}!`
+          ? partySize === 2
+            ? `You and your guest are in, ${name}!`
+            : `You’re in, ${name}!`
           : `Thanks for letting the organizer know, ${name}.`;
         showFeedback(`${text} You can change your response above.`, "success");
         betaCTA.hidden = false;
       } catch (error) {
         showFeedback(error.message || "Your response wasn’t saved. Please try again.", "error");
       } finally {
-        buttons.forEach(item => item.disabled = false);
+        responseButtons.forEach(item => item.disabled = false);
       }
     }));
 
